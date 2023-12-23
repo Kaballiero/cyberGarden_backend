@@ -1,14 +1,17 @@
-import {BelongsToMany, Column, DataType, HasMany, Model, Table} from "sequelize-typescript";
+import {HasOne, BelongsToMany, Column, DataType, HasMany, Model, Table, BelongsTo, ForeignKey} from "sequelize-typescript";
 import {ApiProperty} from "@nestjs/swagger";
-import {Role} from "../roles/roles.model";
-import {UserRoles} from "../roles/user-roles.model";
+import { Park } from "src/park/park.model";
+import { StationPark } from "./station-park.model";
+import { Way } from "src/way/way.model";
+import { StationWay } from "./station-way.model";
+import { User } from "src/users/users.model";
 
 interface StationCreationAttrs {
-    email: string;
-    password: string;
+   name: string;
+    park: string;
 }
 
-@Table({tableName: 'users'})
+@Table({tableName: 'station'})
 export class Station extends Model<Station, StationCreationAttrs> {
     
     @ApiProperty({example: '1', description: 'Уникальный идентификатор'})
@@ -20,14 +23,16 @@ export class Station extends Model<Station, StationCreationAttrs> {
     name: string;
 
     @ApiProperty({example: 'Парк "С"', description: 'название парка'})
-    @Column({type: DataType.STRING, unique: false, allowNull: false})
-    park: string;
+    @BelongsToMany(()=>Park,()=>StationPark)
+    park: Park[]
 
-    @ApiProperty({example: '12345678', description: 'Пароль'})
-    @Column({type: DataType.STRING, allowNull: false})
-    password: string;
+    @ApiProperty({example: 'путь "10С"', description: 'название пути'})
+    @BelongsToMany(()=>Way,()=>StationWay)
+    way: Way[]
 
-    @BelongsToMany(() => Role, () => UserRoles)
-    roles: Role[];
+    @ForeignKey(()=>User)
+    @Column({type: DataType.INTEGER})
+    userId: number
+
 
 }
